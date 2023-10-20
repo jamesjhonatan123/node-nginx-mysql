@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  app:
+    container_name: app
+    build:
+      context: ./node
+    entrypoint: dockerize --wait tcp://db:3306 docker-entrypoint.sh
+    command: node index.js
+    ports: 
+      - 3000:3000
+    tty: true
+    depends_on:
+      - db
+    networks:
+      - fullcycle
+
+  db:
+    container_name: db
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql:/var/lib/mysql:rw
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - fullcycle
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    networks:
+      - fullcycle
+    ports:
+      - "8080:80"
+  
+networks:
+  fullcycle:

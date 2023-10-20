@@ -16,3 +16,6 @@ COPY . .
 RUN npm init -y && npm i express --save && npm i mysql
 
 EXPOSE 3000
+
+ENTRYPOINT dockerize -wait tcp://db:3306 -timeout 20s \
+            && node index.js
